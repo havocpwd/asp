@@ -26,13 +26,6 @@ db.mongoose
         process.exit()
     })
 
-
-app.get('/', (req, res)=> {
-    res.json({
-        message: "welcome to jungle..."
-    })
-})
-
 app.get('/api/rates', function (req, res) {
     rateResponse.response(res);
 })
