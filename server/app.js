@@ -3,10 +3,8 @@ const app = express()
 const rateResponse = require('./rates/response');
 const bodyParser = require('body-parser')
 const cors = require('cors')
-var corsOptions = {
-    origin: "http://localhost:8080"
-};
-app.use(cors(corsOptions));
+
+app.use(cors());
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
 // parse requests of content-type - application/x-www-form-urlencoded
@@ -49,6 +47,16 @@ require('./routes/category.routes')(app)
 require('./routes/product.routes')(app)
 require('./routes/order.routes')(app)
 require('./routes/orderdetail.routes')(app)
+
+//handle production
+if (process.env.NODE_ENV === 'production') {
+    //static folder
+    app.use(express.static(__dirname + '/public/'))
+
+    //handle SPA
+    app.get(/.*/,(req,res) => res.sendFile(__dirname + '/public/index.html'));
+}
+
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
