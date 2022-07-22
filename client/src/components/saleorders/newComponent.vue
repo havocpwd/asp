@@ -582,6 +582,7 @@ export default {
         async generateInvoice(){
             const docDefinition = await soInvoice.createInvoice(this.order,this.orderDetail,this.subtotalDetail,this.grandTotal);
             const pdf = await pdfMake.createPdf(docDefinition);
+            pdf.download(this.order.custName.split(' ').join('_')+'_SO'+this.order.orderNo+'.pdf');
             pdf.open();
         }
     }
