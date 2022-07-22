@@ -3,8 +3,42 @@ const Order = db.dbSchema.Order
 const OrderDetail = db.dbSchema.OrderDetail
 
 
+exports.create = async (req,res) => {
+    const orderItem = new OrderDetail({
+        orders: req.body.orderId,
+        products: req.body.productId,
+        shortDesc: req.body.shortDesc,
+        qtyOrdered: req.body.qtyOrdered,
+        unitPrice: req.body.sales_price,
+        total: req.body.qtyOrdered * req.body.sales_price,
+    })
+    await OrderDetail.create(orderItem).then(doc => {
+        Order.findByIdAndUpdate(
+            {_id: doc.orders},
+            {$push: {orderdetails: doc.id}},
+            { new: true, useFindAndModify: false }
+        ).then((result) => {
+            if(!result){
+                res.status(404).send({
+                    message: "Order Detail not found"
+                })
+            }
+            res.send({
+                message: "Order Detail was updated"
+            })
+        })
+        .catch((error) => {
+            res.status(500).send({
+                message: error.message || "Some error while updating Order Detail."
+            })
+        })
+    })
+    
+}
+
+
 exports.update = (req, res)=>{
-    const id = req.body.OrderDetailId
+    const id = req.params.id
     OrderDetail.findByIdAndUpdate(id, 
         {
             shortDesc: req.body.shortDesc,

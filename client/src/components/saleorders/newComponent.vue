@@ -192,7 +192,6 @@
                     v-model="selected"
                     item-key="id"
                     ></v-data-table>
-                    <h5>Selected: {{selected}}</h5>
                     <v-card-actions class="justify-end">
                     <v-btn
                         text
@@ -236,7 +235,7 @@
                    ></v-text-field>
                 </template>
                 <template v-slot:[`item.actions`]="{ item }">
-                <v-icon small class="mr-2" @click="editOrderDetail(item.id,item)" v-if="editMode">mdi-check</v-icon>
+                <v-icon small class="mr-2" @click="editOrderDetail(item.OrderDetailId,item)" v-if="editMode">mdi-check</v-icon>
                 <v-icon small @click="deleteOrderDetail(item.OrderDetailId, item)" v-if="editMode">mdi-delete</v-icon>
                 </template>
                 </v-data-table>
@@ -389,7 +388,7 @@ export default {
                     deliveryFee: response.data.order.deliveryFee,
                     discount: response.data.order.discount,
                     note: response.data.order.note,
-                    payments: response.data.order.payments,
+                    payments: response.data.order.payments._id,
                     paymentDesc: response.data.order.payments.desc,
                     docStatus: response.data.order.docStatus,
                     total: response.data.order.total,
@@ -460,14 +459,35 @@ export default {
             this.btnSave = false;
         },
         editOrderDetail(id,item){
-            orderDetailService.update(id, item)
-            .then((response) => {
-                console.log(response.data.message);
-                this.refreshlist();
-            })
-            .catch((e) => {
-                console.log(e)
-            });
+            var orderId = this.id;
+            var ItemWithOrderId = {};
+            ItemWithOrderId = {
+                orderId : orderId,
+                productId : item.productId,
+                keyname: item.keyname,
+                shortDesc: item.shortDesc,
+                sales_price: item.sales_price,
+                qtyOrdered: item.qtyOrdered
+            }
+            if(id == undefined){
+                orderDetailService.create(ItemWithOrderId)
+                .then((response) => {
+                    console.log(response.data.message);
+                    this.refreshlist();
+                })
+                .catch((e) => {
+                    console.log(e)
+                });
+            }else{
+                orderDetailService.update(id,item)
+                .then((response) => {
+                    console.log(response.data.message);
+                    this.refreshlist();
+                })
+                .catch((e) => {
+                    console.log(e)
+                });
+            }
         },
 
         delArray(arr,item){
