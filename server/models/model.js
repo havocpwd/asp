@@ -53,6 +53,19 @@ module.exports = (mongoose) => {
             type: Number,
             default: 0,
         },
+        createdAt: {
+            type: Date,
+            default: () => Date.now()
+        },
+        updatedAt: {
+            type: Date,
+            default: () => Date.now()
+        },
+    })
+
+    productSchema.pre('save', function (next){
+        this.updateAt = Date.now()
+        next()
     })
 
     productSchema.method("toJSON", function(){
@@ -111,6 +124,11 @@ module.exports = (mongoose) => {
         address: addressSchema,
     })
 
+    partnerSchema.pre('save', function (next){
+        this.updateAt = Date.now()
+        next()
+    })
+
     partnerSchema.method("toJSON", function(){
         const { __v, _id, ...object } = this.toObject();
         object.id = _id;
@@ -137,7 +155,15 @@ module.exports = (mongoose) => {
             type: Number,
             default: 0,
         },
+        cogs: {
+            type: Number,
+            default: 0,
+        },
         unitPrice: {
+            type: Number,
+            default: 0,
+        },
+        cogsTotal:{
             type: Number,
             default: 0,
         },
@@ -145,6 +171,19 @@ module.exports = (mongoose) => {
             type: Number,
             default: 0,
         },
+        createdAt: {
+            type: Date,
+            default: () => Date.now()
+        },
+        updatedAt: {
+            type: Date,
+            default: () => Date.now()
+        },
+    })
+
+    orderDetailSchema.pre('save', function (next){
+        this.updateAt = Date.now()
+        next()
     })
 
     orderDetailSchema.post('remove', function(next){
@@ -188,6 +227,19 @@ module.exports = (mongoose) => {
             default: 0,
         },
         orderdetails: [{type: mongoose.SchemaTypes.ObjectId, ref: 'orderdetails'}],
+        createdAt: {
+            type: Date,
+            default: () => Date.now()
+        },
+        updatedAt: {
+            type: Date,
+            default: () => Date.now()
+        },
+    })
+
+    orderSchema.pre('save', function (next){
+        this.updateAt = Date.now()
+        next()
     })
 
     orderSchema.method("toJSON", function(){

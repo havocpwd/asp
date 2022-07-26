@@ -22,6 +22,9 @@ class OrderService {
     findByLabel(label) {
         return http.get(`/orders?orderno=${label}`);
     }
+    filterByDate(start,end) {
+        return http.get(`orders?start=${start}&end=${end}`);
+    }
 
 
 }

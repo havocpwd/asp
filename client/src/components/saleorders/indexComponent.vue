@@ -19,6 +19,7 @@ export default {
       tabs: [
         { id: 1, name: "Daftar Penjualan", route: `/so` },
         { id: 2, name: "Penjualan Baru", route: `/so/new` },
+        { id: 3, name: "Laporan", route: `/so/reports` },
       ]
     };
   }

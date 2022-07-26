@@ -9,7 +9,9 @@ exports.create = async (req,res) => {
         products: req.body.productId,
         shortDesc: req.body.shortDesc,
         qtyOrdered: req.body.qtyOrdered,
+        cogs: req.body.cogs,
         unitPrice: req.body.sales_price,
+        cogsTotal:req.body.qtyOrdered * req.body.cogs,
         total: req.body.qtyOrdered * req.body.sales_price,
     })
     await OrderDetail.create(orderItem).then(doc => {
@@ -43,7 +45,10 @@ exports.update = (req, res)=>{
         {
             shortDesc: req.body.shortDesc,
             qtyOrdered: req.body.qtyOrdered,
+            cogs: req.body.cogs,
             unitPrice: req.body.sales_price,
+            cogsTotal:req.body.qtyOrdered * req.body.cogs,
+            total: req.body.qtyOrdered * req.body.sales_price,
         }
     )
     .then((result) => {

@@ -98,6 +98,11 @@ const routes = [
         component: () => import('../components/saleorders/newComponent.vue')
       },
       {
+        path: 'reports',
+        name:'Laporan',
+        component: () => import('../components/saleorders/reportComponent.vue')
+      },
+      {
         path: ':id',
         name:'EditOrder',
         props: true,

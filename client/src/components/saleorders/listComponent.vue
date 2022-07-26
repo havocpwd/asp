@@ -17,7 +17,7 @@
         dense
     >
     <template v-slot:[`item.actions`]="{ item }">
-    <v-icon small class="mr-2" @click="editproduct(item.id)">mdi-printer</v-icon>
+    <v-icon small class="mr-2">mdi-printer</v-icon>
     <v-icon small class="mr-2" @click="editOrder(item)">mdi-pencil</v-icon>
     </template>
     <template v-slot:top>
@@ -44,6 +44,7 @@
           <v-date-picker
               v-model="dates"
               range
+              @change="retrieveorders"
           >
           <v-spacer></v-spacer>
           <v-btn
@@ -62,6 +63,11 @@
             </v-btn>
           </v-date-picker>
           </v-menu>
+          <v-checkbox
+            v-model="getAllOrder"
+            label="Tampilkan Semua"
+            @change="retrieveorders"
+          ></v-checkbox>
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
@@ -82,6 +88,7 @@
           color="primary"
           dark
           icon
+          @click="printSalesReport"
           >
           <v-icon>mdi-printer</v-icon>
           </v-btn>
@@ -94,6 +101,7 @@
           <th>Keyname</th>
           <th>Description</th>
           <th>Qty</th>
+          <th>Cogs</th>
           <th>Harga</th>
           <th>Total</th>
         </tr>
@@ -101,6 +109,7 @@
           <td>{{n.products.keyname}}</td>
           <td>{{n.products.desc}}</td>
           <td>{{n.qtyOrdered}}</td>
+          <td>{{n.cogs}}</td>
           <td>{{n.unitPrice}}</td>
           <td>{{n.total}}</td>
         </tr>
@@ -113,11 +122,17 @@
 </template>
 
 <script>
+/* eslint-disable */
 import orderService from '@/services/orderService';
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
+import salesOrderReport from "@/reports/sales_report";
 
 export default {
     data: () => ({
         expanded: [],
+        getAllOrder: false,
         singleExpand: false,
         loading: false,
         search:'',
@@ -138,6 +153,8 @@ export default {
           { text: "Actions", value: "actions", sortable: false ,class: "primary"},
         ],
         orders: [],
+        dateStart: new Date(),
+        dateEnd: new Date()
     }),
     computed: {
       dateRangeText () {
@@ -150,21 +167,43 @@ export default {
     },
     methods:{
         getPeriodeDate(){
-            const today = new Date(Date.now())
-            const tomorrow = new Date(today)
-            tomorrow.setDate(tomorrow.getDate() + 30);
-            this.dates = [today.toISOString().substring(0, 10),tomorrow.toISOString().substring(0, 10)]
+          let currentDate = new Date()
+          currentDate.setDate(24)
+          let today = new Date()
+
+          if(currentDate.getDate()>=today.getDate() && currentDate.getMonth()==today.getMonth()){
+            this.dateStart.setDate(24);
+            this.dateStart.setMonth(this.dateStart.getMonth() - 1);
+            this.dateEnd.setDate(this.dateStart.getDate() + 30);
+            this.dateEnd.setMonth(this.dateEnd.getMonth() - 1);
+          }else{
+            this.dateStart.setDate(24);
+            this.dateEnd.setDate(this.dateStart.getDate() + 30);
+            this.dateEnd.setMonth(this.dateEnd.getMonth());
+          }
+          this.dates = [this.dateStart.toISOString().substring(0, 10),this.dateEnd.toISOString().substring(0, 10)]
         },
         retrieveorders() {
-        this.loading = true;
-        orderService.getAll()
-          .then((response) => {
-            this.orders = response.data.orders.map(this.getDisplay);
-            this.loading = false;
-          })
-          .catch((e) => {
-            console.log(e);
-          });
+          this.loading = true;
+          if(this.getAllOrder===false){
+            orderService.filterByDate(this.dates[0],this.dates[1])
+            .then((response) => {
+              this.orders = response.data.orders.map(this.getDisplay);
+              this.loading = false;
+            })
+            .catch((e) => {
+              console.log(e);
+            });
+          }else{
+            orderService.getAll()
+              .then((response) => {
+                this.orders = response.data.orders.map(this.getDisplay);
+                this.loading = false;
+              })
+              .catch((e) => {
+                console.log(e);
+              });
+          }
         },
         getDisplay(order,index){
         return {
@@ -179,7 +218,7 @@ export default {
           note: order.note,
           payment:order.payments.desc,
           docStatus: order.docStatus,
-          total: new Intl.NumberFormat('id', { style: 'currency', currency: 'IDR' }).format(order.total),
+          total: order.total,
           orderDetail: order.orderdetails
           }
         },
@@ -191,6 +230,11 @@ export default {
         },
         addOrder(){
           this.$router.push({path:'/so/new'})
+        },
+        async printSalesReport(){
+          const docDefinition = await salesOrderReport.createSalesReport(this.orders, this.dates);
+          const pdf = await pdfMake.createPdf(docDefinition);
+          pdf.open();
         }
     }
 }

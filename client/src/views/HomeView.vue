@@ -36,7 +36,7 @@
         max-width="800"
       >
         <v-sparkline
-        fill="true"
+        :fill="fill"
         :gradient="selectedGradient"
         :line-width="width"
         :padding="padding"

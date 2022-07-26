@@ -383,7 +383,7 @@ export default {
                     orderNo: response.data.order.orderNo,
                     dateIssued: new Date(response.data.order.dateIssued).toISOString().slice(0, 10),
                     partners: response.data.order.partners._id,
-                    custName: response.data.order.partners.first_name,
+                    custName: this.getNameCustomers(response.data.order.partners),
                     deliverTo: response.data.order.deliverTo,
                     deliveryFee: response.data.order.deliveryFee,
                     discount: response.data.order.discount,
@@ -422,6 +422,7 @@ export default {
                 shortDesc: obj.shortDesc,
                 desc: obj.products.desc,
                 qtyOrdered: obj.qtyOrdered,
+                cogs: obj.cogs,
                 sales_price: obj.unitPrice,
                 subTotal: obj.qtyOrdered * obj.unitPrice,
             }
@@ -450,6 +451,7 @@ export default {
                 discount: 0,
                 deliveryFee: 0,
                 orderNo : Math.floor(new Date().valueOf() * Math.random()),
+                dateIssued: new Date().toISOString().substring(0, 10)
             }
         },
         EditOrder(){
@@ -466,6 +468,7 @@ export default {
                 productId : item.productId,
                 keyname: item.keyname,
                 shortDesc: item.shortDesc,
+                cogs: item.cogs,
                 sales_price: item.sales_price,
                 qtyOrdered: item.qtyOrdered
             }
@@ -559,6 +562,7 @@ export default {
                         productId: data[i].id,
                         keyname: data[i].keyname,
                         shortDesc: data[i].desc,
+                        cogs: data[i].purchase_price,
                         sales_price: data[i].sales_price,
                     }
                 );
